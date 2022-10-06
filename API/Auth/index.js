@@ -9,7 +9,7 @@ import { UserModel } from '../../database/user/index';
 const Router = express.Router();
 
 /*
-Route               /signup
+Route               /auth/signup
 Desc                Register new user
 Params              none
 Access              Public
@@ -18,13 +18,8 @@ Method              POST
 Router.post("/signup", async (req, res) => {
     try{
         const {email, password, fullName, phoneNumber} = req.body.credentials;
-        const checkUserByEmail = await UserModel.findOne({ email });
-        const checkUserByPhone = await UserModel.findOne({ phoneNumber });
-
-        // check whether email exists
-        if (checkUserByEmail || checkUserByPhone) {
-            return res.json({ email: "User already exists!" });
-        }
+        
+        await UserModel.findByEmailAndPhone(req.body.credentials);
 
         // hash password
         const bcryptSalt = await bcrypt.genSalt(8); // salting
@@ -45,3 +40,5 @@ Router.post("/signup", async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 })
+
+export default Router;
